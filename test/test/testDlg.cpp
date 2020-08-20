@@ -106,11 +106,16 @@ BOOL CtestDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 
-	m_tab.InsertItem(0, _T("闖紅燈預警"));
-	m_tab.InsertItem(1, _T("弱勢交通參與者"));
+	m_tab.InsertItem(0, _T("闯红灯预警"));
+	m_tab.InsertItem(1, _T("弱势交通参与者预警"));
+	m_tab.InsertItem(2, _T("限速预警"));
+	m_tab.InsertItem(3, _T("道路危险提示预警"));
 
 	m_page1.Create(IDD_DIALOG1,&m_tab);
 	m_page2.Create(IDD_DIALOG2,&m_tab);
+	m_page3.Create(IDD_DIALOG3,&m_tab);
+	m_page4.Create(IDD_DIALOG4,&m_tab);
+
 
 	CRect rc;
 	m_tab.GetClientRect(rc);
@@ -120,11 +125,13 @@ BOOL CtestDlg::OnInitDialog()
 	rc.right -= 0;
 	m_page1.MoveWindow(&rc);
 	m_page2.MoveWindow(&rc);
+	m_page3.MoveWindow(&rc);
+	m_page4.MoveWindow(&rc);
 
 	m_page1.ShowWindow(SW_SHOW);
 	m_page2.ShowWindow(SW_HIDE);
-
-
+	m_page3.ShowWindow(SW_HIDE);
+	m_page4.ShowWindow(SW_HIDE);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -189,10 +196,26 @@ void CtestDlg::OnTcnSelchangeTabTest(NMHDR *pNMHDR, LRESULT *pResult)
 		case 0:
 			m_page1.ShowWindow(SW_SHOW);
 			m_page2.ShowWindow(SW_HIDE);
+			m_page3.ShowWindow(SW_HIDE);
+			m_page4.ShowWindow(SW_HIDE);
 			break;
 		case 1:
 			m_page1.ShowWindow(SW_HIDE);
 			m_page2.ShowWindow(SW_SHOW);
+			m_page3.ShowWindow(SW_HIDE);
+			m_page4.ShowWindow(SW_HIDE);
+			break;
+		case 2:
+			m_page1.ShowWindow(SW_HIDE);
+			m_page2.ShowWindow(SW_HIDE);
+			m_page3.ShowWindow(SW_SHOW);
+			m_page4.ShowWindow(SW_HIDE);
+			break;
+		case 3:
+			m_page1.ShowWindow(SW_HIDE);
+			m_page2.ShowWindow(SW_HIDE);
+			m_page3.ShowWindow(SW_HIDE);
+			m_page4.ShowWindow(SW_SHOW);
 			break;
 		default: break;
 	}

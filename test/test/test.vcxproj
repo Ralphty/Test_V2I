@@ -189,6 +189,9 @@
   <ItemGroup>
     <ClInclude Include="CTestDlg1.h" />
     <ClInclude Include="CTestDlg2.h" />
+    <ClInclude Include="CTestDlg3.h" />
+    <ClInclude Include="CTestDlg4.h" />
+    <ClInclude Include="define.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -199,6 +202,8 @@
   <ItemGroup>
     <ClCompile Include="CTestDlg1.cpp" />
     <ClCompile Include="CTestDlg2.cpp" />
+    <ClCompile Include="CTestDlg3.cpp" />
+    <ClCompile Include="CTestDlg4.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

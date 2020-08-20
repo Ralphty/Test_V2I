@@ -14,7 +14,7 @@ typedef char            nint8_t;
 
 #define  WM_NET_SENDSignalINFO (WM_USER + 101)
 #define	 WM_NET_Linsten (WM_USER + 102)
-#define  WM_NET_CHECK (WM_USER + 103)
+#define  WM_NET_RECEIVE (WM_USER + 103)
 
 #define SW_16(x) ((short)((((short)(x)&(short)0x00ffU)<<8)|(((short)(x)&(short)0xff00U)>>8)))
 
@@ -26,7 +26,8 @@ public:
 	CTestDlg1(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CTestDlg1();
 
-	CSocket m_socket;
+	CSocket send_socket;
+	CSocket receive_socket;
 
 	UINT m_GreenTime;
 	UINT m_YellowTime;
@@ -79,6 +80,27 @@ public:
 
 	SPaTMSG g_SPaTMsg;
 
+	typedef struct _MAPDATA
+	{
+		uint16_t Head;
+		uint32_t Node_Longitude;
+		uint32_t Node_Latitude;
+		uint8_t  RegionID;
+		uint16_t LimitSpeed;
+	}MapData;
+
+	MapData g_MapData;
+
+	typedef struct _RSIDATA
+	{
+		uint16_t Head;
+		uint32_t Signage_Longitude;
+		uint32_t Signage_Latitude;
+		uint8_t  Warning_Type;
+	}RsiData;
+
+	RsiData g_RsiData;
+
 	void CTestDlg1::StatusChange(uint16_t Green, uint16_t Yellow, uint16_t Red, uint8_t Time, uint8_t * Status, uint16_t *TimeLeft);
 	void CTestDlg1::PictureLoad(uint8_t status);
 
@@ -90,15 +112,13 @@ public:
 	CString	m_ServerIP;
 	int		m_ServerPort;
 	static UINT Thread_Linstening(LPVOID pParam);
+	//static UINT Thread_Receive(LPVOID pParam);
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnSendData(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT RSUChecking(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT Receive_Handle(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -109,6 +129,7 @@ public:
 	CFile file;
 	CComboBox m_CmbDir;
 	CWinThread *pthread_Senddata1;
+	CWinThread *pthread_Senddata2;
 	//	afx_msg void OnCbnSetfocusCombo1();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();

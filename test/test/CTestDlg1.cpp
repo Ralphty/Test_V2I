@@ -9,6 +9,8 @@
 #include "locale.h"
 #include "afxwin.h"
 #include <iostream>
+#include "testDlg.h"
+#include "define.h"
 
 
 using namespace std;
@@ -17,8 +19,8 @@ int g_nIndex = 0;
 
 // CTestDlg1 dialog
 
+UINT Thread_Receive(LPVOID pParam);
 UINT Thread_Show(LPVOID pParam);
-UINT Thread_Checking(LPVOID pParam);
 uint8_t SendFlag = 0;
 
 IMPLEMENT_DYNAMIC(CTestDlg1, CDialogEx)
@@ -55,7 +57,7 @@ BEGIN_MESSAGE_MAP(CTestDlg1, CDialogEx)
 
 	ON_MESSAGE(WM_NET_SENDSignalINFO, OnSendData)
 
-	ON_MESSAGE(WM_NET_CHECK, RSUChecking)
+	ON_MESSAGE(WM_NET_RECEIVE, Receive_Handle)
 
 	ON_BN_CLICKED(IDOK, &CTestDlg1::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CTestDlg1::OnBnClickedCancel)
@@ -76,13 +78,24 @@ BOOL CTestDlg1::OnInitDialog()
 
 	//创建网络套接字
 	AfxSocketInit();
-	BOOL b = m_socket.Create(0, SOCK_DGRAM);
+	BOOL b = send_socket.Create(0, SOCK_DGRAM);
 	if (!b)
 	{
 		cout << GetLastError() << endl;
 	}
 
+
+	BOOL c = receive_socket.Create(5555, SOCK_DGRAM);
+	if (!c)
+	{
+		cout << GetLastError() << endl;
+	}
+
 	pthread_Senddata1 = AfxBeginThread(Thread_Linstening, this);
+	//pthread_Senddata2 = AfxBeginThread(Thread_Receive, this);
+	//pthread_Senddata1->ResumeThread();
+	//pthread_Senddata2->ResumeThread();
+
 
 	UpdateData(TRUE);
 	m_GreenTime = 30;
@@ -153,71 +166,56 @@ UINT CTestDlg1::Thread_Linstening(LPVOID pParam)
 
 	// 创建线程
 	CWinThread *pthread_Senddata1 = AfxBeginThread(Thread_Show, pDlg, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+	CWinThread *pthread_Senddata2 = AfxBeginThread(Thread_Receive, pDlg, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 	pthread_Senddata1->ResumeThread();
+	pthread_Senddata2->ResumeThread();
 
 	return 0;
 }
 
-uint8_t RSURegister = 0;
-uint8_t RSUServerCode = 0;
-uint8_t RSUDeviceRegister = 0;
-
-UINT Thread_Checking(LPVOID pParam)
+UINT Thread_Receive(LPVOID pParam)
 {
 	CTestDlg1 * pDlg = (CTestDlg1 *)pParam;
-	int RevFlag = 0;
-	while (RevFlag == 0)
+	while (1)
 	{
-		pDlg->PostMessage(WM_NET_CHECK, 0);
-		Sleep(500);
-		if (RSURegister == 1 && RSUServerCode == 1 && RSUDeviceRegister == 1)
-		{
-			RevFlag = 1;
-		}
-
+		pDlg->PostMessage(WM_NET_RECEIVE, 0);
+		//pDlg->Receive_Handle();
+		Sleep(1000);
 	}
 
 	return 0;
 }
 
-LRESULT CTestDlg1::RSUChecking(WPARAM wParam, LPARAM lParam)
+LRESULT CTestDlg1::Receive_Handle(WPARAM wParam, LPARAM lParam)
 {
 	char RecBuffer[60];
-	char OK[] = "ok";
-	m_socket.Receive(RecBuffer, 60);
+	CString serverIP;
+	UINT serverPort;
+	uint16_t Head;
 
-	memcpy(&Register.Head, &RecBuffer, 2);
-	memcpy(&Register.Version, &RecBuffer[2], 1);
-	memcpy(&Register.FrameType, &RecBuffer[3], 1);
+	receive_socket.Receive(RecBuffer, 20);
+	//receive_socket.ReceiveFrom(RecBuffer,20,serverIP,serverPort);
+	//printf("RecBuffer value is %s\n", RecBuffer);
+	OutputDebugString(RecBuffer);
 
-	if (Register.Head == 0x595A)
+
+	memcpy(&Head, &RecBuffer, 2);
+
+	if (Head == 0xAA55)
 	{
-		if (Register.FrameType == 0x41)
-		{
-			SetDlgItemText(IDC_ConnectInfo, _T("RSU注册成功！"));
-			RSURegister = 1;
-			m_socket.Send((void *)OK, sizeof(OK));
-		}
-		else if (Register.FrameType == 0x42)
-		{
-			SetDlgItemText(IDC_ConnectInfo, _T("RSU项目服务器注册成功！"));
-			RSUServerCode = 1;
-			m_socket.Send((void *)OK, sizeof(OK));
-		}
-		else
-		{
-			SetDlgItemText(IDC_ConnectInfo, _T("RSU路测设备注册成功！"));
-			RSUDeviceRegister = 1;
-			m_socket.Send((void *)OK, sizeof(OK));
-		}
+		memcpy(&g_MapData.Node_Longitude, &RecBuffer[2], 4);
+		memcpy(&g_MapData.Node_Latitude, &RecBuffer[6], 4);
+		memcpy(&g_MapData.RegionID, &RecBuffer[10], 2);
+		memcpy(&g_MapData.LimitSpeed, &RecBuffer[12], 2);
 	}
-	if (RSURegister == 1 && RSUServerCode == 1 && RSUDeviceRegister == 1)
+	else if (Head == 0x55AA)
 	{
-		CWinThread *pthread_Senddata1 = AfxBeginThread(Thread_Show, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-		pthread_Senddata1->ResumeThread();
-		RSURegister = 0;
-		RSUServerCode = 0;
-		RSUDeviceRegister = 0;
+		memcpy(&g_RsiData.Signage_Longitude, &RecBuffer[2], 4);
+		memcpy(&g_RsiData.Signage_Latitude, &RecBuffer[6], 4);
+		memcpy(&g_RsiData.Warning_Type, &RecBuffer[10], 1);
+	}
+	else 
+	{
 	}
 
 	return 0;
@@ -338,7 +336,7 @@ LRESULT CTestDlg1::OnSendData(WPARAM wParam, LPARAM lParam)
 	memcpy(&StatusBuf[23], &g_SPaTMsg.End, 1);
 
 	//m_socketSend.Send((void *)StatusBuf, 24, 0);
-	m_socket.SendTo((void *)StatusBuf, 24, 6000, _T("192.168.20.199"));
+	send_socket.SendTo((void *)StatusBuf, 24, 6000, _T("192.168.20.199"));
 
 	PictureLoad(Status);
 

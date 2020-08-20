@@ -104,7 +104,6 @@ BOOL CTestDlg2::OnInitDialog()
 	{
 		cout << GetLastError() << endl;
 	}
-	rsm_socket.Bind(5678,LocalIP);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -135,8 +134,9 @@ UINT CTestDlg2::SendDataThread(LPVOID pParam)
 		if (SendRsmFlag == 1)
 		{
 			pDlg->PostMessage(WM_NET_SENDRSMSignalINFO, 0);
-			Sleep(2000);
+			//Sleep(1000);
 		}
+		Sleep(1000);
 	}
 
 	return 0;

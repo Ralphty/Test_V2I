@@ -6,6 +6,8 @@
 
 #include "CTestDlg1.h"
 #include "CTestDlg2.h"
+#include "CTestDlg3.h"
+#include "CTestDlg4.h"
 
 
 // CtestDlg dialog
@@ -38,5 +40,7 @@ public:
 	CTabCtrl m_tab;
 	CTestDlg1 m_page1;
 	CTestDlg2 m_page2;
+	CTestDlg3 m_page3;
+	CTestDlg4 m_page4;
 	afx_msg void OnTcnSelchangeTabTest(NMHDR *pNMHDR, LRESULT *pResult);
 };
