@@ -20,6 +20,7 @@
 #define IDC_EDIT_RedTime                1002
 #define IDC_EDIT_LIDAR_LONGITUDE        1002
 #define IDC_EDIT_Road_longit            1002
+#define IDC_EDIT_Road_Long              1002
 #define IDC_EDIT2                       1003
 #define IDC_EDIT_GreenTime              1003
 #define IDC_EDIT_LIDAR_LATITUDE         1003

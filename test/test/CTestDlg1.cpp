@@ -189,15 +189,13 @@ UINT Thread_Receive(LPVOID pParam)
 LRESULT CTestDlg1::Receive_Handle(WPARAM wParam, LPARAM lParam)
 {
 	char RecBuffer[60];
-	CString serverIP;
-	UINT serverPort;
+	//CString serverIP;
+	//UINT serverPort;
 	uint16_t Head;
 
 	receive_socket.Receive(RecBuffer, 20);
 	//receive_socket.ReceiveFrom(RecBuffer,20,serverIP,serverPort);
-	//printf("RecBuffer value is %s\n", RecBuffer);
-	OutputDebugString(RecBuffer);
-
+	//OutputDebugString(RecBuffer);
 
 	memcpy(&Head, &RecBuffer, 2);
 
@@ -205,14 +203,22 @@ LRESULT CTestDlg1::Receive_Handle(WPARAM wParam, LPARAM lParam)
 	{
 		memcpy(&g_MapData.Node_Longitude, &RecBuffer[2], 4);
 		memcpy(&g_MapData.Node_Latitude, &RecBuffer[6], 4);
-		memcpy(&g_MapData.RegionID, &RecBuffer[10], 2);
-		memcpy(&g_MapData.LimitSpeed, &RecBuffer[12], 2);
+		memcpy(&g_MapData.RegionID, &RecBuffer[10], 4);
+		memcpy(&g_MapData.LimitSpeed, &RecBuffer[14], 4);
+		Road_Longitude = (float)g_MapData.Node_Longitude / 10000000;
+		Road_latitude = (float)g_MapData.Node_Latitude / 10000000;
+		Region_ID = g_MapData.RegionID;
+		Limit_Speed = g_MapData.LimitSpeed;
 	}
 	else if (Head == 0x55AA)
 	{
 		memcpy(&g_RsiData.Signage_Longitude, &RecBuffer[2], 4);
 		memcpy(&g_RsiData.Signage_Latitude, &RecBuffer[6], 4);
-		memcpy(&g_RsiData.Warning_Type, &RecBuffer[10], 1);
+		memcpy(&g_RsiData.Warning_Type, &RecBuffer[10], 4);
+
+		Signage_Longitude = (float)g_RsiData.Signage_Longitude / 10000000;
+		Signage_Latitude = (float)g_RsiData.Signage_Latitude / 10000000;
+		Warn_Type = g_RsiData.Warning_Type;
 	}
 	else 
 	{

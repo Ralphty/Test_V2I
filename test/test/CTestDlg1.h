@@ -85,8 +85,8 @@ public:
 		uint16_t Head;
 		uint32_t Node_Longitude;
 		uint32_t Node_Latitude;
-		uint8_t  RegionID;
-		uint16_t LimitSpeed;
+		uint32_t  RegionID;
+		uint32_t LimitSpeed;
 	}MapData;
 
 	MapData g_MapData;
@@ -96,7 +96,7 @@ public:
 		uint16_t Head;
 		uint32_t Signage_Longitude;
 		uint32_t Signage_Latitude;
-		uint8_t  Warning_Type;
+		uint32_t  Warning_Type;
 	}RsiData;
 
 	RsiData g_RsiData;
